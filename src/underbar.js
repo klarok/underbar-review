@@ -214,7 +214,7 @@
     iterator = iterator || _.identity;
     return !_.every(collection, function(value) {
       return !iterator(value);
-    })
+    });
     // TIP: There's a very clever way to re-use every() here.
   };
 
@@ -313,7 +313,7 @@
         results[key] = result;
         return result;
       }
-    }
+    };
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -323,6 +323,10 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    let args = [...arguments].slice(2);
+    setTimeout(function() {
+      func.apply(null, args);
+    }, wait);
   };
 
 
@@ -337,6 +341,13 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    var original = array.slice();
+    var result = [];
+    for (var i = 0; i < array.length; i++) {
+      let random = Math.floor(Math.random() * original.length);
+      result = result.concat(original.splice(random, 1));
+    }
+    return result;
   };
 
 
