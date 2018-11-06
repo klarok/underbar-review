@@ -49,11 +49,10 @@
   // iterator function over each item in the input collection.
   _.each = function(collection, iterator) {
     if (Array.isArray(collection)) {
-      for (var i = 0 ; i < collection.length; i++) {
+      for (var i = 0; i < collection.length; i++) {
         iterator(collection[i], i, collection);
       }
-    }
-    else {
+    } else {
       for (var key in collection) {
         iterator(collection[key], key, collection);
       }
@@ -111,16 +110,14 @@
           valuesHolder.push(value[1]);
           result.push(value[0]);
         }
-      }) 
-    }
-
-    else {
+      }); 
+    } else {
       _.each(array, function(value) {
-      if (result.indexOf(value) === -1) {
-        result.push(value);
-      }
-    });
-  }
+        if (result.indexOf(value) === -1) {
+          result.push(value);
+        }
+      });
+    }
     return result;
   };
 
@@ -183,11 +180,11 @@
     } else {
       var coll = collection;
     }
-      _.each(coll, function(value) {
-        accumulator = iterator(accumulator, value);
-      });
-      return accumulator;
-    };
+    _.each(coll, function(value) {
+      accumulator = iterator(accumulator, value);
+    });
+    return accumulator;
+  };
 
   // Determine if the array or object contains a given value (using `===`).
   _.contains = function(collection, target) {
@@ -205,11 +202,19 @@
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
+    if (iterator === undefined) { iterator = _.identity; }
+    return _.reduce(collection, function(allPass, item) {
+      return allPass && !!iterator(item);
+    }, true);
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
+    iterator = iterator || _.identity;
+    return !_.every(collection, function(value) {
+      return !iterator(value);
+    })
     // TIP: There's a very clever way to re-use every() here.
   };
 
@@ -233,11 +238,27 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    let sources = [...arguments].slice(1);
+    _.each(sources, function(source) {
+      _.each(source, function(value, key) {
+        obj[key] = value;
+      });
+    });
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    let sources = [...arguments].slice(1);
+    _.each(sources, function(source) {
+      _.each(source, function(value, key) {
+        if (!obj.hasOwnProperty(key)) {
+          obj[key] = value;
+        }
+      });
+    });
+    return obj;    
   };
 
 
@@ -281,6 +302,18 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    let results = {};
+    
+    return function() {
+      let key = JSON.stringify([...arguments]);
+      if (results.hasOwnProperty(key)) {
+        return results[key];
+      } else {
+        let result = func.apply(this, [...arguments]);
+        results[key] = result;
+        return result;
+      }
+    }
   };
 
   // Delays a function for the given number of milliseconds, and then calls
